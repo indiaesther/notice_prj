@@ -1,0 +1,249 @@
+<!DOCTYPE html>
+<html lang="ko"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+<head>
+    <title>글쓰기</title>
+</head>
+
+<script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    $(function () {
+      console.log("==글 상세페이지 로딩완료!==");
+
+      $(':input').attr("disabled", true);
+      //$(':button').attr("disabled", false);
+      $(':button').removeAttr("disabled");
+
+      let currentPage = [[${currentPage}]];
+      let TITLEMAXLENGTH = 20;
+      let CONTENTSMAXLENGTH = 100;
+
+      $("input[name=chkAll]").click(function() {
+        if($(this).is(":checked")) {
+          $("input[type=checkbox]").prop("checked",true);
+        } else {
+          $("input[type=checkbox]").prop("checked",false);
+        }
+      });
+
+      $("input[name='check']").click(function() {
+        if ($("input[name='check']:checked").length==2) {
+          $("input[name=chkAll]").prop("checked",true);
+        } else {
+          $("input[name=chkAll]").prop("checked",false);
+        }
+      });
+
+
+      $('#updateBtn').click(function() {
+
+        if($('#updateBtn').text() == '수정') {
+	        console.log("수정저장버튼 클릭!!");
+	        $('#pageTitle').text("글 수정하기");
+	        $(':input').removeAttr("disabled");
+	        $("#updateBtn").html("저장");
+        } else {
+          if(confirm("정말 수정하시겠습니까?")==true) {
+            console.log("저장버튼 클릭!!");
+              let title = $('#title').val();
+              let contents = $('#contents').val();
+              console.log("공백 제거 전 title값  --> "+title);
+              title = title.trim();
+              console.log("공백 제거 후 title값  --> "+title);
+
+              if(title == "") {
+                alert("[제목] 최소 1자 이상 입력해주세요.");
+                return;
+              } else if (title.length > TITLEMAXLENGTH) {
+                alert("[제목] 최대 20자 입니다.");
+                return;
+              }
+
+              if ($("input:radio[name='brandNm']:checked").length < 1) {
+                alert("[구분] 항목을 체크해주세요!");
+                return;
+              }
+
+              if ($("input[id='categoryNm']:checked").length < 1) {
+                alert("[노출타입] 항목을 체크해주세요!");
+                return;
+              }
+              if(contents == "") {
+                alert("[내용] 최소 1자 이상 입력해주세요.");
+                return;
+              } else if (contents.length > CONTENTSMAXLENGTH) {
+                alert("[내용] 최대 100자 입니다.");
+                return;
+              }
+
+
+            var noteDao = {
+                    noteID: $('#noteId').val(),
+                    title: title,
+                    brandNm: $('input[name="brandNm"]:checked').val(),
+                    categoryNm: $(":checkbox[id='categoryNm']:checked").val(),
+                    popupYn: $("select[name='popupYn']").val(),
+                    contents: contents,
+            };
+
+            $.ajax({
+              url: "/updateNote",
+              data: JSON.stringify(noteDao),
+              type: "POST",
+              contentType : "application/json; charset=utf-8",
+              success: function(jdata) {
+                if(jdata=1) {
+                  alert("수정 성공!!");
+                  $('#pageTitle').text("글 상세보기");
+                  $(':input').attr("disabled", true);
+                  $(':button').removeAttr("disabled");
+                  $('#updateBtn').html("수정");
+                }
+                else {
+                  alert("수정 실패!!");
+                }
+             }
+           })
+        }
+        }
+      });
+
+    });
+function moveView() {
+  let query = window.location.search;
+  let param = new URLSearchParams(query);
+
+  param.delete("noteId");
+  location.href = "view?" + param;
+}
+
+
+
+
+</script>
+
+<body>
+    <th:block layout:fragment="header" th:include="@{/fragments/common}"></th:block>
+       <form th:action="@{/update}" method="post" enctype="multipart/form-data" onsubmit="return submitNote()">
+        <div class="container" layout:fragment="content">
+           <table>
+              <tr>
+               <td>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                 <tr style="bgcolor:#dddddd; text-align:center;">
+                  <td width="5%"><width="5" height="30" /></td>
+                  <td id="pageTitle">글 상세보기</td>
+                  <td width="5%"><width="5" height="30" /></td>
+                 </tr>
+                </table>
+               <table>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <input type="hidden" id=noteId th:value=${noteDao.noteID} />
+                  <td align="center">제목</td>
+                  <td><input id="title" name="title" size="50" maxlength="100" th:value="${noteDao.title}" required="required"></td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">구분</td>
+                  <td>
+                   <input type="radio" name="brandNm" value="eats" width="15" th:checked="${noteDao.brandNm ne null and noteDao.brandNm.equals('eats')?'true':'false'}"><span>eats</span></input>
+                   <input type="radio" name="brandNm" value="lotteria" width="15" th:checked="${'lotteria'.equals(noteDao.brandNm)?'true':'false'}"><span>롯데리아</span></input>
+                   <input type="radio" name="brandNm" value="kkdn" width="15" th:checked="${noteDao.brandNm ne null and noteDao.brandNm.equals('kkdn')?'true':'false'}"><span>크리스피도넛</span></input>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                  <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">노출타입</td>
+                  <td>
+                       <input type="checkbox" id="categoryNm" name="chkAll" value="All" size="50" width="15" th:checked="${noteDao.categoryNm.equals('All')?'true':'false'}">전체</input>
+                       <input type="checkbox" id="categoryNm" name="check" value="Free" size="50" width="15" th:checked="${(noteDao.categoryNm.equals('All') or noteDao.categoryNm.equals('Free'))?'true':'false'}" >자유게시판</input>
+                       <input type="checkbox" id="categoryNm" name="check" value="FAQ" size="50" width="15" th:checked="${(noteDao.categoryNm.equals('All') or noteDao.categoryNm.equals('FAQ'))?'true':'false'}">FAQ</input>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">팝업여부</td>
+                    <td>
+
+                        <select name="popupYn" th:value="${noteDao.popupYn}">
+                            <option name="popupYn" value="Y" th:selected="${noteDao.popupYn}=='Y'">예</option>
+                            <option name="popupYn" value="N" th:selected="${noteDao.popupYn}=='N'">아니오</option>
+                        </select>
+                    </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">내용</td>
+                  <td><textarea id="contents" name="contents" cols="50" rows="13">[[${noteDao.contents}]]</textarea></td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">파일첨부</td>
+                  <td>
+                    <input type="file" id="uploadFile" name="uploadFile" multiple="multiple"/>
+                    <a class="card-text"
+
+                    ></a>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                 <tr height="1" bgcolor="#82B5DF"><td colspan="4"></td></tr>
+                 <tr align="center">
+                  <td>&nbsp;</td>
+                  <td colspan="2" class="btm-btn-td">
+                      <a class="submit-btn" type="button" onclick="moveView();">취소</a>
+                      <a class="submit-btn" type="button" id="updateBtn">수정</a>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                </table>
+               </td>
+              </tr>
+            </table>
+         </div>
+      </form>
+    </body>
+
+</html>
+
+<style>
+.submit-btn {
+    box-shadow:inset 0px 1px 0px 0px #fbafe3;
+    background:linear-gradient(to bottom, #f9ceee 5%, #e6bfdc 100%);
+    background-color:#f9ceee;
+    border-radius:6px;
+    border:1px solid #f9ceee;
+    display:inline-block;
+    cursor:pointer;
+    color:#97c4b8;
+    font-family:Arial;
+    font-size:15px;
+    font-weight:bold;
+    padding:6px 24px;
+    text-decoration:none;
+    text-shadow:0px 1px 0px #e6e6e6;
+}
+.submit-btn:hover {
+    background:linear-gradient(to bottom, #e6bfdc 5%, #f9ceee 100%);
+    background-color:#e6bfdc;
+}
+.submit-btn:active {
+    position:relative;
+    top:1px;
+}
+
+</style>

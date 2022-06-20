@@ -1,0 +1,109 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<!DOCTYPE mapper
+        PUBLIC "-//mybatis.org//DTD Mapper 3.0//EN"
+        "http://mybatis.org/dtd/mybatis-3-mapper.dtd">
+
+    <mapper namespace="com.project.mapper.NotesMapper">
+
+    <sql id="search">
+        <if test="searchOption != null">
+            <if test="searchOption  == 'title'.toString()">AND TITLE LIKE CONCAT('%',#{keyword},'%')</if>
+            <if test="searchOption  == 'contents'.toString()">AND CONTENTS LIKE CONCAT('%',#{keyword},'%')</if>
+            <if test="searchOption  == 'all'.toString()">AND (TITLE LIKE CONCAT('%',#{keyword},'%')
+                                                               OR CONTENTS LIKE CONCAT('%',#{keyword},'%'))
+            </if>
+            <if test="searchOption  == 'brandNm'.toString()">AND BRANDNM = #{keyword}</if>
+        </if>
+    </sql>
+
+        <select id="getBoardListCnt" parameterType="com.project.DAO.SearchVO" resultType="int">
+	        select count(*)
+	         from tb_note
+	         where useYn='Y'
+	         <if test='keyword != null'>
+                   <include refid="search"></include>
+             </if>
+        </select>
+
+        <!-- 게시글 등록 -->
+        <insert id="writeBoardInsert" parameterType="com.project.DAO.NoteDAO">
+        INSERT INTO TB_NOTE( NoteID
+                           , Title
+                           , BrandNm
+                           , CategoryNm
+                           , PopupYn
+                           , Contents
+                           , regDate
+                           , modDate
+                           ,useYn)
+             VALUES(ISNULL((SELECT MAX(NOTEID)+1 FROM TB_NOTE),1)
+                    , #{title}
+                    , #{brandNm}
+                    , #{categoryNm}
+                    , #{popupYn}
+                    , #{contents}
+                    , GETDATE()
+                    , GETDATE()
+                    , 'Y'
+        );
+        </insert>
+
+        <!-- 게시글 리스트 조회 -->
+        <select id="getBoardList" parameterType="com.project.DAO.SearchVO" resultType="com.project.DAO.NoteDAO">
+	        SELECT T1.*
+			  FROM (
+			         SELECT ROW_NUMBER() OVER(ORDER BY REGDATE DESC) AS RN
+			                 , NOTEID
+			                 , TITLE
+			                 , BRANDNM
+			                 , CATEGORYNM
+			                 , REGDATE
+			                 , MODDATE
+			              FROM TB_NOTE
+			             WHERE USEYN='Y'
+			            <if test="keyword != null">
+			                   <include refid="search"></include>
+			             </if>
+			  ) T1
+	        <if test="firstRecordIndex !=null and lastRecordIndex != null">
+	            WHERE RN BETWEEN #{firstRecordIndex} AND
+	            #{lastRecordIndex}
+	        </if>
+	    </select>
+
+       <!-- 게시판 삭제 -->
+       <update id="deleteBoard">
+	       UPDATE TB_NOTE
+	         SET USEYN='N'
+        	WHERE NOTEID=#{noteIdx}
+        	;
+
+       </update>
+
+        <!-- 게시판 상세보기 -->
+        <select id="getDetailNote" resultType="com.project.DAO.NoteDAO">
+            SELECT NOTEID
+                 , TITLE
+                 , BRANDNM
+                 , CATEGORYNM
+                 , POPUPYN
+                 , CONTENTS
+              FROM TB_NOTE
+            WHERE NOTEID=#{noteIdx}
+            ;
+        </select>
+
+        <!-- 게시판 수정 -->
+        <update id="updateBoard">
+            UPDATE TB_NOTE
+			   SET  TITLE= #{title}
+			      , BRANDNM= #{brandNm}
+			      , CategoryNm = #{categoryNm}
+			      , POPUPYN = #{popupYn}
+			      , CONTENTS = #{contents}
+			      , MODDATE = GETDATE()
+			WHERE NOTEID = #{noteID}
+        </update>
+
+</mapper>

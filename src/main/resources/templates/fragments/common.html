@@ -1,0 +1,61 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+
+    <header th:fragment:"headerFragment">
+
+
+            <span style="font-size:xx-large; color: #97C4B8">게시판 만들기</span>
+	        <nav>
+	            <ul class="nav-container">
+	                <li class="nav-item">
+	                   <a href="/board">HOME</a>
+	                </li>
+	                <li class="nav-item">
+	                    <a href="/view">전체게시판</a>
+	                </li>
+	                <li class="nav-item">
+	                    <a href="">자유게시판</a>
+	                </li>
+	                <li class="nav-item">
+	                   <a href="">FAQ</a>
+	                </li>
+	            </ul>
+	        </nav>
+
+    </header>
+     <style>
+            . title-container {
+                color: "#97C4B8";
+                top: 50%;
+                left: 50%;
+                font-size: x-large;
+            }
+            .nav-container {
+                display: flex;
+                flex-direction: row;
+                width: 100%;
+                maring: 0;
+                padding: 0;
+                background-color: #F9CEEE;
+                list-style-type: none;
+            }
+
+            .nav-item {
+                padding: 15px;
+                cursor: pointer;
+                color: #F9F3EE;
+            }
+
+            .nav-item a {
+                text-align: center;
+                text-decoration: none;
+                color: #97C4B8;
+            }
+
+            .nav-item:hover {
+                background-color: #F9F3EE;
+                font-weight: 800;
+            }
+        </style>
+
+</html>

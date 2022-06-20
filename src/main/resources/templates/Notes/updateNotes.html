@@ -1,0 +1,116 @@
+<!DOCTYPE html>
+<html lang="ko"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout"
+    layout:decorate="~{layout}">
+<head>
+    <title>글쓰기</title>
+</head>
+
+<script src="http://code.jquery.com/jquery-3.5.1.min.js"></script>
+
+<script type="text/javascript" th:inline="javascript">
+    $(function () {
+      console.log("==글쓰기 페이지 로딩완료!==");
+
+
+          $("#insert").click(function() {
+              console.log("등록버튼 클릭");
+
+              var noticeData = JSON.stringify({
+                title: $('#title').val(),
+                brandNm: $('input[name="radio"]:checked').val(),
+                categoryNm: $(":checkbox[name='checkbox']:checked").val(),
+                popupYn: $("#popupYn option:selected").val(),
+                contents: $('#contents').val(),
+              });
+
+              console.log("noticeData ==> " + noticeData);
+          });
+
+    });
+
+
+
+</script>
+
+<body>
+    <th:block layout:fragment="header" th:include="@{/fragments/common}"></th:block>
+    <div class="container" layout:fragment="content">
+        <form th:object=${noteDao} th:action="@{/insert}" method="post" enctype="multipart/form-data">
+            <table>
+              <tr>
+               <td>
+                <table width="100%" cellpadding="0" cellspacing="0" border="0">
+                 <tr style="bgcolor:#dddddd; text-align:center;">
+                  <td width="5%"><width="5" height="30" /></td>
+                  <td>글쓰기</td>
+                  <td width="5%"><width="5" height="30" /></td>
+                 </tr>
+                </table>
+               <table>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">제목</td>
+                  <td><input id="title" name="title" size="50" maxlength="100" placeholder="제목을 입력하세요" required="required"></td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">구분</td>
+                  <td>
+                   <input type="radio" name="brandNm" value="eats" width="15" >eats</input>
+                   <input type="radio" name="brandNm" value="lotteria" width="15" >롯데리아</input>
+                   <input type="radio" name="brandNm" value="kkdn" width="15" >크리스피도넛</input>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                  <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">노출타입</td>
+                  <td>
+                       <input type="checkbox" name="categoryNm" value="All" size="50" width="15" >전체</input>
+                       <input type="checkbox" name="categoryNm" value="Free" size="50" width="15" >자유게시판</input>
+                       <input type="checkbox" name="categoryNm" value="FAQ" size="50" width="15" >FAQ</input>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">팝업여부</td>
+                    <td>
+                        <select name="popupYn">
+                            <option name="popupYn" value="Y">예</option>
+                            <option name="popupYn" value="N">아니오</option>
+                        </select>
+                    </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                 <tr>
+                  <td>&nbsp;</td>
+                  <td align="center">내용</td>
+                  <td><textarea id="contents" name="contents" cols="50" rows="13" placeholder="내용을 입력하세요"></textarea></td>
+                  <td>&nbsp;</td>
+                 </tr>
+                 <tr height="1" bgcolor="#dddddd"><td colspan="4"></td></tr>
+                 <tr height="1" bgcolor="#82B5DF"><td colspan="4"></td></tr>
+                 <tr align="center">
+                  <td>&nbsp;</td>
+                  <td colspan="2">
+                      <input type="button" th:href="@{./noteslist}" value="취소"></a>
+                      <button type="submit">확인</button>
+                  </td>
+                  <td>&nbsp;</td>
+                 </tr>
+                </table>
+               </td>
+              </tr>
+         </table>
+       </form>
+    </body>
+  </div>
+</html>

@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="ko"
+    xmlns="http://www.w3.org/1999/xhtml"
+    xmlns:th="http://www.thymeleaf.org"
+    xmlns:layout="http://www.ultraq.net.nz/thymeleaf/layout">
+<head>
+</head>
+
+<body>
+    <!-- header 시작 -->
+    <header th:replace="gragment/common :: headerFragment"></th:replace>
+    <!-- header 끝 -->
+    <!-- content 시작 -->
+    <div class="container-wrapper js-container" id="body" layout:fragment="content"></div>
+    <!-- content 끝 -->
+
+    <!--
+        <div class="container-wrapper js-container" id="body">
+            <th:block layout:fragment="content"></th:block>
+        </div>
+    </div>
+   -->
+
+</body>
+</html>
